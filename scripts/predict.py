@@ -1,10 +1,6 @@
-from datamodule import GNNDataModule
-from utils import load_yaml_config
-from modelmodule import GNNModel
 from pytorch_lightning import Trainer
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error, mean_absolute_percentage_error
 from sklearn.metrics import accuracy_score, confusion_matrix, f1_score, matthews_corrcoef
-# import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import argparse
@@ -14,25 +10,16 @@ import torch
 import os
 from sklearn.preprocessing import RobustScaler
 
-sys.path.append(str(Path(__file__).resolve().parent))
+# Add the project root to the Python path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.append(str(project_root))
 
+from datamodules.datamodule import GNNDataModule
+from utils.utils import load_yaml_config
+from models.modelmodule import GNNModel
+from models.ensembles import Ensembles
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Prediction script")
-
-    parser.add_argument("--config_file",
-                        default="cgcnn_config.yaml",
-                        help="Provide the experiment configuration file")
-    parser.add_argument("--checkpoint_path",
-                        default="cgcnn_models/cgcnn_trained_models/july_3_magpie_compound/",
-                        help="Provide the path to model checkpoint")
-    parser.add_argument("--output_name",
-                        default="output/cgcnn_july_magpie_compound.csv",
-                        help="Provide the path to save prediction results")
-
-    args = parser.parse_args(sys.argv[1:])
-    config = load_yaml_config(args.config_file)
-    
+def neural_networks(**config):
     config['data']['lmdb_exist']=True
     try:
         data = GNNDataModule(**config['data'])
@@ -117,13 +104,11 @@ if __name__ == "__main__":
 
     # metrics
     if config['model']['classification']:
-        
         acc = accuracy_score(truth.cpu().numpy(), prediction)
         f1 = f1_score(truth.cpu().numpy(), prediction, average='macro')
         mcc = matthews_corrcoef(truth.cpu().numpy(), prediction)
         cm = confusion_matrix(truth.cpu().numpy(), prediction)
-        
-
+    
         print(f'Model name: {config["model"]["name"]}')
         print(f'Test set acc: {acc}')
         print(f'Test set f1_score: {f1}')
@@ -140,6 +125,72 @@ if __name__ == "__main__":
         print(f'Test set MAPE: {mape}')
         print(f'Test set MSE: {mse}')
         print(f'Test set R2 score: {r2}')
+    return
+
+def ensembles(save_model_path=None, save_model_name=None, **config):
+    model = Ensembles(**config)
+    model.prep_data()
+    predictions = model.train_predict_model(save_model_path=save_model_path, 
+                                            save_model_name=save_model_name)
+    if(config['model']['classification']):
+        print('** Model evaluation **')
+        acc = accuracy_score(predictions['truth'].values, predictions['pred'].values)
+        f1 = f1_score(predictions['truth'].values, predictions['pred'].values, average='macro')
+        mcc = matthews_corrcoef(predictions['truth'].values, predictions['pred'].values)
+        cm = confusion_matrix(predictions['truth'].values, predictions['pred'].values)
+
+        print(f'Model name: {config["model"]["model_name"]}')
+        print(f'Test set acc: {acc}')
+        print(f'Test set f1_score: {f1}')
+        print(f'Test set mcc: {mcc}')
+        print(f'Test set confusion matrix: {cm}')
+
+    else:
+        print('** Model evaluation **')
+        mse = mean_squared_error(predictions['truth'].values, predictions['pred'].values)
+        mae = mean_absolute_error(predictions['truth'].values, predictions['pred'].values)
+        mape = mean_absolute_percentage_error(predictions['truth'].values, predictions['pred'].values)
+        r2 = r2_score(predictions['truth'].values, predictions['pred'].values)
+        
+        print(f'Model name: {config["model"]["model_name"]}')
+        print(f'Test set MAE: {mae}')
+        print(f'Test set MAPE: {mape}')
+        print(f'Test set MSE: {mse}')
+        print(f'Test set R2 score: {r2}')
+    return
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Prediction script")
+
+    parser.add_argument("--config_file",
+                        default="cgcnn.yaml",
+                        help="Provide the experiment configuration file")
+    parser.add_argument("--checkpoint_path",
+                        default="trained_models/cgcnn/test/",
+                        help="Provide the path to model checkpoint")
+    parser.add_argument("--output_name",
+                        default="output/cgcnn_test.csv",
+                        help="Provide the path to save predictions")
+    parser.add_argument("--ensemble_model_save_name",
+                        default="gb_50_quantile.pkl",
+                        help="Provide the path to save predictions")
+    parser.add_argument("--ensemble_model_save_path",
+                        default="trained_models/GB/",
+                        help="Provide the path to save predictions")
+
+    args = parser.parse_args(sys.argv[1:])
+
+    path_config = Path(__file__).resolve().parent.parent / 'configs' / args.config_file
+    config = load_yaml_config(path_config)
+    
+    if(args.config_file == 'configs/ensembles.yaml'):
+        ensembles(save_model_path=args.ensemble_model_save_path, 
+                  save_model_name=args.ensemble_model_save_name,
+                  **config)
+    else:
+        neural_networks(**config)
+    
+    
 
 
 

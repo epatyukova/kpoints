@@ -7,11 +7,10 @@ import json
 import pickle as pk
 from torch_geometric.data import Dataset, Batch
 import torch
-from typing import List, Tuple, Dict, Union
-import dgl
+from typing import Dict
 from pymatgen.core.structure import Structure
-from cgcnn_utils import build_pyg_cgcnn_graph_from_structure
-from alignn_utils import build_alignn_graph_with_angles_from_structure
+from .cgcnn_graph import build_pyg_cgcnn_graph_from_structure
+from .alignn_graph import build_alignn_graph_with_angles_from_structure
 
 import lmdb
 import pickle as pk

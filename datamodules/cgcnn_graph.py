@@ -2,12 +2,9 @@ import numpy as np
 import pandas as pd
 from pymatgen.core.structure import Structure
 from pymatgen.core.composition import Composition
-from matminer.featurizers.composition import ElementProperty, Stoichiometry 
-from matminer.featurizers.composition import ValenceOrbital, IonProperty, AtomicOrbitals
+from matminer.featurizers.composition import ElementProperty, Stoichiometry, ValenceOrbital
 from matminer.featurizers.base import MultipleFeaturizer
-
-from typing import Dict, Tuple
-
+from typing import Dict
 import torch
 from torch_geometric.data import Data
 import json

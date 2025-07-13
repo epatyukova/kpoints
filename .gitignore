@@ -1,4 +1,7 @@
 data/
 trained_models/
 notebooks/
+output/
+mlruns/
+lightning_logs/
 .DS_Store

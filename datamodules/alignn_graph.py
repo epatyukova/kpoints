@@ -1,6 +1,6 @@
 import numpy as np
 import json
-from typing import Tuple, Dict
+from typing import Dict
 from pymatgen.core.structure import Structure
 import torch
 from torch_geometric.data import Data

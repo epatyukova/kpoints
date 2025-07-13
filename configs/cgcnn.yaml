@@ -12,7 +12,7 @@ train:
 data:
   additional_compound_features: null # is_metal_cgcnn, magpie
   additional_atom_features: null # soap
-  root_dir: data/cgcnn_data_mp_metal_nonmetal
+  root_dir: data/test
   model_name: cgcnn
   id_prop_csv: id_prop.csv
   checkpoint_path: trained_models/cgcnn/cgcnn_epoch=48_val_mcc=0.80_mp_metal_non_metal.ckpt
@@ -21,7 +21,7 @@ data:
   train_ratio: 0.8
   val_ratio: 0.1
   test_ratio: 0.1
-  lmdb_exist: true
+  lmdb_exist: false
   lmdb_test_name: test_data.lmdb
   lmdb_train_name: train_data.lmdb
   lmdb_val_name: val_data.lmdb
@@ -39,7 +39,7 @@ data:
   #   l_max: 6
   #   sigma: 1.0
 
-model:
+model:  #clarify the question of weight initialization in lightning and random_seed for that
   name: cgcnn
   n_conv: 3
   h_fea_len: 128
@@ -47,17 +47,17 @@ model:
   edge_feat_dim: 64
   atom_fea_len: 64
   n_h: 1
-  robust_regression: false
+  robust_regression: true
   quantile_regression: false 
-  classification: true
+  classification: false
   num_classes: 2
   pooling_type: 'mean_pool' # other possibilities : ..
   additional_compound_features: false
   add_feat_len: 146
 
-# loss:
-#   name: RobustL2Loss # RobustL1Loss, QuantileLoss, CrossEntropyLoss, HuberLoss, L1Loss, MSELoss
-#   quantile: 0.5 # for quantile regression
+loss:
+  name: RobustL2Loss # RobustL1Loss, QuantileLoss, CrossEntropyLoss, HuberLoss, L1Loss, MSELoss
+  quantile: 0.5 # for quantile regression
 
 optim:
   weight_decay: 0.0001  # 1e-5

@@ -8,12 +8,14 @@ import argparse
 
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).resolve().parent))
+
+# Add the project root to the Python path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.append(str(project_root))
+
 from datamodules.datamodule import GNNDataModule
 from utils.utils import load_yaml_config
 from models.modelmodule import GNNModel
-
-
 
 
 if __name__ == "__main__":
@@ -25,7 +27,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args(sys.argv[1:])
 
-    path_config = Path(__file__).resolve().parent.parent / "config" / args.config_file
+    path_config = Path(__file__).resolve().parent.parent / "configs" / args.config_file
     config = load_yaml_config(path_config)
     
 
@@ -44,13 +46,13 @@ if __name__ == "__main__":
             checkpoint_callback = ModelCheckpoint(monitor='val_mcc', \
                                                 mode="max", \
                                                 save_top_k=config['train']['number_of_checkpoints'], \
-                                                dirpath='cgcnn_models/cgcnn_trained_models/', \
+                                                dirpath='trained_models/cgcnn/', \
                                                 filename='cgcnn_{epoch:02d}_{val_mcc:.2f}')
         else:
             checkpoint_callback = ModelCheckpoint(monitor='val_mae', \
                                                 mode="min", \
                                                 save_top_k=config['train']['number_of_checkpoints'], \
-                                                dirpath='cgcnn_models/cgcnn_trained_models/', \
+                                                dirpath='trained_models/cgcnn/', \
                                                 filename='cgcnn_{epoch:02d}_{val_mae:.2f}')
             
     elif(config['model']['name'] == 'alignn'):
@@ -58,13 +60,13 @@ if __name__ == "__main__":
             checkpoint_callback = ModelCheckpoint(monitor='val_mcc', \
                                                 mode="max", \
                                                 save_top_k=config['train']['number_of_checkpoints'], \
-                                                dirpath='alignn_models/alignn_trained_models/', \
+                                                dirpath='trained_models/alignn/', \
                                                 filename='alignn_{epoch:02d}_{val_mcc:.2f}')
         else:
             checkpoint_callback = ModelCheckpoint(monitor='val_mae', \
                                                 mode="min", \
                                                 save_top_k=config['train']['number_of_checkpoints'], \
-                                                dirpath='alignn_models/alignn_trained_models/', \
+                                                dirpath='trained_models/alignn/', \
                                                 filename='alignn_{epoch:02d}_{val_mae:.2f}')
     
 

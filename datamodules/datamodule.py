@@ -2,12 +2,11 @@ import pandas as pd
 import pytorch_lightning as L
 import os
 import shutil
-import yaml
-from lmdb_dataset import load_atom_features, create_lmdb_database, LMDBPyGDataset
+from .lmdb_dataset import load_atom_features, create_lmdb_database, LMDBPyGDataset
 from sklearn.model_selection import train_test_split
 import pickle as pk
 from torch.utils.data import DataLoader
-from cgcnn_utils import create_magpie_features, create_is_metal_cgcnn_features
+from .cgcnn_graph import create_magpie_features, create_is_metal_cgcnn_features
 
 
 class GNNDataModule(L.LightningDataModule):

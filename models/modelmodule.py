@@ -1,13 +1,17 @@
-from alignn_model import ALIGNN_PyG
-from cgcnn_model import CGCNN_PyG
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parent))
+
+from models.alignn import ALIGNN_PyG
+from models.cgcnn import CGCNN_PyG
 import pytorch_lightning as L
-from datamodule import GNNDataModule
-from utils import count_parameters, RobustL2Loss, QuantileLoss, RobustL1Loss
+from datamodules.datamodule import GNNDataModule
+from utils.utils import count_parameters, RobustL2Loss, QuantileLoss, RobustL1Loss
 from torch.nn import HuberLoss, CrossEntropyLoss, MSELoss, L1Loss
 import torch.optim as optim
 import torch
 from sklearn.metrics import mean_absolute_error, mean_squared_error
-from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, matthews_corrcoef
+from sklearn.metrics import accuracy_score, f1_score, matthews_corrcoef
 from sklearn.utils.class_weight import compute_class_weight
 import torch.nn.functional as F
 import pandas as pd
