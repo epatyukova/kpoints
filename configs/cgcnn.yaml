@@ -6,22 +6,22 @@ train:
   devices: 1
   patience: 50
   run_name: test0
-  experiment_name: cgcnn_is_metal_mp
+  experiment_name: cgcnn_basic
   version: '1.0'
 
 data:
   additional_compound_features: null # is_metal_cgcnn, magpie
   additional_atom_features: null # soap
-  root_dir: data/test
+  root_dir: data/cgcnn_junwen_july_3_kdist
   model_name: cgcnn
   id_prop_csv: id_prop.csv
   checkpoint_path: trained_models/cgcnn/cgcnn_epoch=48_val_mcc=0.80_mp_metal_non_metal.ckpt
   data_file: data/cgcnn_junwen_july_3_kdist/data.csv
-  features_file: embeddings/atom_init_original.json
+  features_file: embeddings/atom_init_with_sssp_cutoffs.json
   train_ratio: 0.8
   val_ratio: 0.1
   test_ratio: 0.1
-  lmdb_exist: false
+  lmdb_exist: true
   lmdb_test_name: test_data.lmdb
   lmdb_train_name: train_data.lmdb
   lmdb_val_name: val_data.lmdb
@@ -56,8 +56,9 @@ model:  #clarify the question of weight initialization in lightning and random_s
   add_feat_len: 146
 
 loss:
-  name: RobustL2Loss # RobustL1Loss, QuantileLoss, CrossEntropyLoss, HuberLoss, L1Loss, MSELoss
+  name: RobustL2Loss # RobustL2Loss, RobustL1Loss, QuantileLoss, CrossEntropyLoss, HuberLoss, L1Loss, MSELoss, StudentTloss
   quantile: 0.5 # for quantile regression
+  student_nu: 2
 
 optim:
   weight_decay: 0.0001  # 1e-5
@@ -66,3 +67,6 @@ optim:
   optimizer: adamw
   momentum: 0.9
   scheduler: onecycle
+
+prediction:
+  predict_for_validation: true

@@ -6,7 +6,7 @@ from models.alignn import ALIGNN_PyG
 from models.cgcnn import CGCNN_PyG
 import pytorch_lightning as L
 from datamodules.datamodule import GNNDataModule
-from utils.utils import count_parameters, RobustL2Loss, QuantileLoss, RobustL1Loss
+from utils.utils import count_parameters, RobustL2Loss, QuantileLoss, RobustL1Loss, StudentTLoss
 from torch.nn import HuberLoss, CrossEntropyLoss, MSELoss, L1Loss
 import torch.optim as optim
 import torch
@@ -83,6 +83,10 @@ class GNNModel(L.LightningModule):
             elif self.loss_name == 'RobustL2Loss':
                 print('Using RobustL2Loss for regression task')
                 self.criterion = RobustL2Loss
+            elif self.loss_name == 'StudentTLoss':
+                print('Using StudentTLoss for regression task')
+                self.student_nu = config['loss']['student_nu']
+                self.criterion = lambda output, logstd, target: StudentTLoss(output, logstd, target, nu=self.student_nu)
 
         elif self.quantile_regression:
             quantile = config['loss']['quantile']

@@ -125,6 +125,9 @@ def neural_networks(**config):
         print(f'Test set MAPE: {mape}')
         print(f'Test set MSE: {mse}')
         print(f'Test set R2 score: {r2}')
+
+    if config['prediction']['predict_for_validation']:
+        pass
     return
 
 def ensembles(save_model_path=None, save_model_name=None, **config):
@@ -166,10 +169,10 @@ if __name__ == "__main__":
                         default="cgcnn.yaml",
                         help="Provide the experiment configuration file")
     parser.add_argument("--checkpoint_path",
-                        default="trained_models/cgcnn/test/",
+                        default="trained_models/cgcnn/basic_l2robust_regularization/",
                         help="Provide the path to model checkpoint")
     parser.add_argument("--output_name",
-                        default="output/cgcnn_test.csv",
+                        default="output/cgcnn/cgcnn_basic_l2robust_regularization.csv",
                         help="Provide the path to save predictions")
     parser.add_argument("--ensemble_model_save_name",
                         default="gb_50_quantile.pkl",
