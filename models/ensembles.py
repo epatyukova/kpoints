@@ -151,9 +151,12 @@ class Ensembles:
             for i,comp in enumerate(self.data['composition'].values):
                 features[i,:comp_feat_len]=self.composition_featurizer.featurize(comp)
         if self.structure_features is not None:
-            for i,struct in enumerate(self.data['structure'].values):
-                features[i,comp_feat_len:comp_feat_len+struct_feat_len]=\
-                    self.structure_featurizer.featurize(struct) 
+            for i, struct in enumerate(self.data['structure'].values):
+                try:
+                    features[i, comp_feat_len:comp_feat_len+struct_feat_len] = self.structure_featurizer.featurize(struct)
+                except Exception as e:
+                    print(f"Warning: Structure featurization failed for index {i}, formula {struct.formula} with error: {e}")
+                    features[i, comp_feat_len:comp_feat_len+struct_feat_len] = np.zeros(struct_feat_len)
         if self.jarvis_features:
             for i,struct in enumerate(self.data['structure'].values):
                 features[i,comp_feat_len+struct_feat_len:comp_feat_len+struct_feat_len+jarvis_feat_len]=\

@@ -47,8 +47,8 @@ model:  #clarify the question of weight initialization in lightning and random_s
   edge_feat_dim: 64
   atom_fea_len: 64
   n_h: 1
-  robust_regression: true
-  quantile_regression: false 
+  robust_regression: false
+  quantile_regression: true
   classification: false
   num_classes: 2
   pooling_type: 'mean_pool' # other possibilities : ..
@@ -56,9 +56,9 @@ model:  #clarify the question of weight initialization in lightning and random_s
   add_feat_len: 146
 
 loss:
-  name: RobustL2Loss # RobustL2Loss, RobustL1Loss, QuantileLoss, CrossEntropyLoss, HuberLoss, L1Loss, MSELoss, StudentTloss
-  quantile: 0.5 # for quantile regression
-  student_nu: 2
+  name: QuantileLoss # RobustL2Loss, RobustL1Loss, QuantileLoss, CrossEntropyLoss, HuberLoss, L1Loss, MSELoss, StudentTloss
+  quantile: 0.1 # for quantile regression
+  student_nu: 5
 
 optim:
   weight_decay: 0.0001  # 1e-5

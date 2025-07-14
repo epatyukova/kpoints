@@ -135,6 +135,8 @@ def ensembles(save_model_path=None, save_model_name=None, **config):
     model.prep_data()
     predictions = model.train_predict_model(save_model_path=save_model_path, 
                                             save_model_name=save_model_name)
+    
+    predictions.to_csv(args.output_name)
     if(config['model']['classification']):
         print('** Model evaluation **')
         acc = accuracy_score(predictions['truth'].values, predictions['pred'].values)
@@ -169,13 +171,13 @@ if __name__ == "__main__":
                         default="cgcnn.yaml",
                         help="Provide the experiment configuration file")
     parser.add_argument("--checkpoint_path",
-                        default="trained_models/cgcnn/basic_l2robust_regularization/",
+                        default="trained_models/cgcnn/quantile_0.9/",
                         help="Provide the path to model checkpoint")
     parser.add_argument("--output_name",
-                        default="output/cgcnn/cgcnn_basic_l2robust_regularization.csv",
+                        default="output/cgcnn/cgcnn_basic_quantile_90.csv",
                         help="Provide the path to save predictions")
     parser.add_argument("--ensemble_model_save_name",
-                        default="gb_50_quantile.pkl",
+                        default="GB_basic_quantile_10.pkl",
                         help="Provide the path to save predictions")
     parser.add_argument("--ensemble_model_save_path",
                         default="trained_models/GB/",
@@ -186,7 +188,7 @@ if __name__ == "__main__":
     path_config = Path(__file__).resolve().parent.parent / 'configs' / args.config_file
     config = load_yaml_config(path_config)
     
-    if(args.config_file == 'configs/ensembles.yaml'):
+    if(args.config_file == 'ensembles.yaml'):
         ensembles(save_model_path=args.ensemble_model_save_path, 
                   save_model_name=args.ensemble_model_save_name,
                   **config)

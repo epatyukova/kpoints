@@ -141,6 +141,7 @@ class GNNModel(L.LightningModule):
             log_std=log_std.squeeze()
             loss = self.criterion(prediction, log_std, target)
         else:
+            output = output.view(-1)
             loss = self.criterion(output, target)
         self.log("train_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True, batch_size=self.batch_size)
         
@@ -181,6 +182,7 @@ class GNNModel(L.LightningModule):
             log_std=log_std.squeeze()
             loss = self.criterion(prediction, log_std, target)
         else:
+            output = output.view(-1)
             loss = self.criterion(output, target)
         self.log("val_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True, batch_size=self.batch_size)
  
@@ -221,6 +223,7 @@ class GNNModel(L.LightningModule):
             log_std=log_std.squeeze()
             loss = self.criterion(prediction, log_std, target)
         else:
+            output = output.view(-1)
             loss = self.criterion(output, target)
         self.log("test_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True, batch_size=self.batch_size)
         
