@@ -1,7 +1,7 @@
 import pytorch_lightning as L
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
-from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import ModelCheckpoint, StochasticWeightAveraging, Callback
 from lightning.pytorch.loggers import MLFlowLogger
 import mlflow.pytorch
 import argparse
@@ -69,15 +69,29 @@ if __name__ == "__main__":
                                                 dirpath='trained_models/alignn/', \
                                                 filename='alignn_{epoch:02d}_{val_mae:.2f}')
     
+    if config['optim']['swa']:
+        swa = StochasticWeightAveraging(swa_lrs=config['optim']['swa_lr'], swa_epoch_start=config['optim']['swa_start'])
+    
+        trainer = Trainer(max_epochs=config['train']['epochs'], \
+                                accelerator=config['train']['accelerator'],  \
+                                devices=config['train']['devices'], \
+                                logger=mlf_logger, \
+                                callbacks=[EarlyStopping(monitor='val_loss', patience=config['train']['patience']), 
+                                        checkpoint_callback, swa])
+    else:
+        trainer = Trainer(max_epochs=config['train']['epochs'], \
+                                accelerator=config['train']['accelerator'],  \
+                                devices=config['train']['devices'], \
+                                logger=mlf_logger, \
+                                callbacks=[EarlyStopping(monitor='val_loss', patience=config['train']['patience']), 
+                                        checkpoint_callback])
 
 
-    trainer = Trainer(max_epochs=config['train']['epochs'], \
-                            accelerator=config['train']['accelerator'],  \
-                            devices=config['train']['devices'], \
-                            logger=mlf_logger, \
-                            callbacks=[EarlyStopping(monitor='val_loss', patience=config['train']['patience']), checkpoint_callback])
 
     trainer.fit(model, datamodule=data)
+    if config['optim']['swa']:
+        swa_path = Path(__file__).resolve().parent.parent / 'trained_models'/ config['model']['name']/'swa_model.ckpt'
+        trainer.save_checkpoint(swa_path)
     
 
     if(config['model']['name'] == 'cgcnn'):

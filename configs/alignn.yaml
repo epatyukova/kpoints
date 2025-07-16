@@ -35,6 +35,10 @@ model:
   classification: false
   num_classes: 2
   robust_regression: false
+
+loss:
+  name: RobustL2Loss # RobustL1Loss, QuantileLoss, CrossEntropyLoss, HuberLoss, L1Loss, MSELoss
+  quantile: 0.5 # for quantile regression
   
 optim:
   weight_decay: 0.00001  # 1e-5

@@ -4,6 +4,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.composition import Composition
 from matminer.featurizers.composition import ElementProperty, Stoichiometry, ValenceOrbital
 from matminer.featurizers.base import MultipleFeaturizer
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from typing import Dict
 import torch
 from torch_geometric.data import Data
@@ -122,6 +123,68 @@ def create_magpie_features(df, formula_column: str = 'formula'):
     df['composition']=[Composition(df.iloc[i]['Formula']).fractional_composition for i in range(len(df))]
     for i,comp in enumerate(df['composition']):
         features[i,:]=featurizer.featurize(comp)
+    features=np.nan_to_num(features, copy=True, nan=0.0, posinf=None, neginf=None)
+    return pd.DataFrame(features)
+
+def create_structure_features(df, structure_column: str = 'structure'):
+    """Create Magpie features for a dataframe of structures
+    """
+    # 7 crystal systems
+    crystal_system_map = {
+        "triclinic": 0,
+        "monoclinic": 1,
+        "orthorhombic": 2,
+        "tetragonal": 3,
+        "trigonal": 4,
+        "hexagonal": 5,
+        "cubic": 6
+    }
+    # 14 Bravais lattices (symbols and encodings)
+    bravais_map = {
+        "aP": 0,  # triclinic primitive
+        "mP": 1, "mC": 2,  # monoclinic
+        "oP": 3, "oC": 4, "oI": 5, "oF": 6,  # orthorhombic
+        "tP": 7, "tI": 8,  # tetragonal
+        "hP": 9, "hR": 10,  # hexagonal/trigonal
+        "cP": 11, "cI": 12, "cF": 13  # cubic
+    }
+    # Map to abbreviations
+    system_abbr = {
+        "triclinic": "a",
+        "monoclinic": "m",
+        "orthorhombic": "o",
+        "tetragonal": "t",
+        "trigonal": "h",
+        "hexagonal": "h",
+        "cubic": "c"
+    }
+    features=np.zeros((len(df),15))
+    for i,structure in enumerate(df[structure_column].values):
+        try:
+            feature=[]
+            for x in structure.lattice.abc:
+                feature.append(x)
+            for x in structure.lattice.angles:
+                feature.append(x)
+            for x in structure.lattice.reciprocal_lattice.abc:
+                feature.append(x)
+            for x in structure.lattice.reciprocal_lattice.angles:
+                feature.append(x)
+            sga = SpacegroupAnalyzer(structure, symprec=0.01)
+            spg_symbol = sga.get_space_group_symbol()
+            spg_number = sga.get_space_group_number()
+            crystal_system = sga.get_crystal_system()
+            centering = spg_symbol[0]
+            bravais = system_abbr[crystal_system] + centering
+            crystal_system_id = crystal_system_map[crystal_system]
+            bravais_id = bravais_map.get(bravais, -1)
+            feature.append(crystal_system_id)
+            feature.append(bravais_id)
+            feature.append(spg_number)
+            feature=np.array(feature)
+            features[i,:]=feature
+        except:
+            print(f'failed to calculate lattice features for {structure.formula}')
     features=np.nan_to_num(features, copy=True, nan=0.0, posinf=None, neginf=None)
     return pd.DataFrame(features)
 

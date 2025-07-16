@@ -140,6 +140,8 @@ class GNNModel(L.LightningModule):
             prediction=prediction.squeeze()
             log_std=log_std.squeeze()
             loss = self.criterion(prediction, log_std, target)
+        elif self.classification:
+            loss = self.criterion(output, target)
         else:
             output = output.view(-1)
             loss = self.criterion(output, target)
@@ -181,6 +183,8 @@ class GNNModel(L.LightningModule):
             prediction=prediction.squeeze()
             log_std=log_std.squeeze()
             loss = self.criterion(prediction, log_std, target)
+        elif self.classification:
+            loss = self.criterion(output, target)
         else:
             output = output.view(-1)
             loss = self.criterion(output, target)
@@ -222,6 +226,8 @@ class GNNModel(L.LightningModule):
             prediction=prediction.squeeze()
             log_std=log_std.squeeze()
             loss = self.criterion(prediction, log_std, target)
+        elif self.classification:
+            loss = self.criterion(output, target)
         else:
             output = output.view(-1)
             loss = self.criterion(output, target)
@@ -243,6 +249,7 @@ class GNNModel(L.LightningModule):
             mae = mean_absolute_error(target.cpu(),prediction.data.cpu())
             self.log("test_mse", float(mse), on_step=False, on_epoch=True, prog_bar=False, logger=True, batch_size=self.batch_size)
             self.log("test_mae", float(mae), on_step=False, on_epoch=True, prog_bar=True, logger=True, batch_size=self.batch_size)
+        else:    
             mse = mean_squared_error(target.cpu(),output.data.cpu())
             mae = mean_absolute_error(target.cpu(),output.data.cpu())
             self.log("test_mse", float(mse), on_step=False, on_epoch=True, prog_bar=False, logger=True, batch_size=self.batch_size)

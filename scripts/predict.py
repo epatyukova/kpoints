@@ -168,19 +168,19 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Prediction script")
 
     parser.add_argument("--config_file",
-                        default="cgcnn.yaml",
+                        default="ensembles.yaml",
                         help="Provide the experiment configuration file")
     parser.add_argument("--checkpoint_path",
-                        default="trained_models/cgcnn/quantile_0.9/",
+                        default="trained_models/cgcnn/l1robust_lattice_features/",
                         help="Provide the path to model checkpoint")
     parser.add_argument("--output_name",
-                        default="output/cgcnn/cgcnn_basic_quantile_90.csv",
+                        default="output/RF/is_metal.csv",
                         help="Provide the path to save predictions")
     parser.add_argument("--ensemble_model_save_name",
-                        default="GB_basic_quantile_10.pkl",
+                        default="RF_is_metal.pkl",
                         help="Provide the path to save predictions")
     parser.add_argument("--ensemble_model_save_path",
-                        default="trained_models/GB/",
+                        default="trained_models/RF/",
                         help="Provide the path to save predictions")
 
     args = parser.parse_args(sys.argv[1:])

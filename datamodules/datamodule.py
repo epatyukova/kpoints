@@ -6,7 +6,7 @@ from .lmdb_dataset import load_atom_features, create_lmdb_database, LMDBPyGDatas
 from sklearn.model_selection import train_test_split
 import pickle as pk
 from torch.utils.data import DataLoader
-from .cgcnn_graph import create_magpie_features, create_is_metal_cgcnn_features
+from .cgcnn_graph import create_magpie_features, create_is_metal_cgcnn_features, create_structure_features
 
 
 class GNNDataModule(L.LightningDataModule):
@@ -54,10 +54,13 @@ class GNNDataModule(L.LightningDataModule):
         atom_features_dict = load_atom_features(features_file)
         
         if(self.additional_compound_features == 'magpie'):
-            df=pd.read_csv(data_file)
+            df=pd.read_pickle(data_file)
             additional_features_df = create_magpie_features(df, formula_column = 'Formula')
         elif(self.additional_compound_features == 'is_metal_cgcnn'):
             additional_features_df = create_is_metal_cgcnn_features(root_dir, checkpoint_path)
+        elif(self.additional_compound_features == 'lattice'):
+            df=pd.read_pickle(data_file)
+            additional_features_df = create_structure_features(df, structure_column = 'structure')
         
         data = pd.read_csv(os.path.join(root_dir, id_prop_csv), header=None)
         if(test_ratio == 1.0):
